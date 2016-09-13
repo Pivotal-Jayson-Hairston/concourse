@@ -13,5 +13,5 @@ cd ${GOPATH}/src/github.com/concourse/fly
 GOARCH=amd64 CGO_ENABLED=0 \
     go build \
     -ldflags "-X github.com/concourse/fly/version.Version=${FINAL_VERSION}" \
-    -o ${platform}/fly \
+    -o ${platform}/fly_${platform}_amd64 \
     github.com/concourse/fly
