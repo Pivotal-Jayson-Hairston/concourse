@@ -8,6 +8,7 @@ groups:
   - baggageclaim
   - tsa
   - rc
+  - build-fly
   - bin-rc
   - bosh-rc
   - bin-testflight
@@ -148,21 +149,52 @@ jobs:
   - put: version
     params: {file: version/version}
 
+- name: build-fly
+  public: true
+  plan:
+  - get: concourse
+    trigger: true
+    passed: [rc]
+  - get: version
+    trigger: true
+    passed: [rc]
+  - get: final-version
+    resource: version
+    passed: [rc]
+    params: {bump: final}
+    trigger: true
+  - get: garden-runc
+    trigger: true
+    passed: [rc]
+  - aggregate:
+    - task: build-linux
+      file: concourse/ci/fly-build-linux.yml
+    - task: build-darwin
+      file: concourse/ci/fly-build-darwin.yml
+    - task: build-windows
+      file: concourse/ci/fly-build-windows.yml
+      timeout: 15m
+      attempts: 2
+  - task: tarball-flies
+    file: concourse/ci/tarball-flies.yml
+  - put: fly-binaries
+    params: { file: flies/fly-*.tgz }
+
 - name: bosh-rc
   public: true
   plan:
   - get: concourse
-    passed: [rc]
+    passed: [build-fly]
     trigger: true
   - get: garden-runc
-    passed: [rc]
+    passed: [build-fly]
     trigger: true
   - get: version
-    passed: [rc]
+    passed: [build-fly]
     trigger: true
   - get: final-version
     resource: version
-    passed: [rc]
+    passed: [build-fly]
     params: {bump: final}
     trigger: true
   - task: create-bosh-rc
@@ -176,18 +208,18 @@ jobs:
   plan:
   - aggregate:
     - get: concourse
-      passed: [rc]
+      passed: [build-fly]
       trigger: true
     - get: version
-      passed: [rc]
+      passed: [build-fly]
       trigger: true
     - get: final-version
       resource: version
-      passed: [rc]
+      passed: [build-fly]
       params: {bump: final}
       trigger: true
     - get: garden-runc
-      passed: [rc]
+      passed: [build-fly]
       trigger: true
     - get: bin
       trigger: true
@@ -783,6 +815,14 @@ resources:
   source:
     repository: cloudfoundry-incubator/garden-runc-release
 
+- name: fly-binaries
+  type: s3
+  source:
+    bucket: concourse-fly
+    regexp: fly-(.*).tgz
+    access_key_id: {{pipeline-bucket-access-key}}
+    secret_access_key: {{pipeline-bucket-secret-key}}
+
 - name: tracker
   type: tracker
   source:
@@ -838,7 +878,7 @@ resources:
   type: git
   source:
     uri: git@github.com:concourse/concourse.git
-    branch: develop
+    branch: ci
     private_key: {{concourse-repo-private-key}}
 
 - name: concourse-master
