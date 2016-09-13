@@ -8,8 +8,8 @@ inputs:
 params:
   platform: darwin
 
-output:
-  - name: binary
+outputs:
+  - name: darwin
 
 run:
   path: concourse/ci/scripts/fly-build
