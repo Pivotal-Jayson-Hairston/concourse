@@ -12,7 +12,7 @@ inputs:
   - name: darwin
   - name: windows
 
-output:
+outputs:
   - name: flies
 
 params:
