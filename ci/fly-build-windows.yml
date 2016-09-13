@@ -2,7 +2,8 @@
 platform: windows
 
 inputs:
-- name: concourse
+  - name: concourse
+  - name: final-version
 
 outputs:
   - name: windows
