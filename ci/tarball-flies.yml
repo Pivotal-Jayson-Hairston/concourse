@@ -8,9 +8,13 @@ image_resource:
 
 inputs:
   - name: version
+  - name: concourse
   - name: linux
+    path: binaries
   - name: darwin
+    path: binaries
   - name: windows
+    path: binaries
 
 outputs:
   - name: flies
