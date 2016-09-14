@@ -2,7 +2,7 @@
 src/version/VERSION
 
 # fly binaries, built by CI
-src/fly/*
+src/fly_binaries/*
 
 config/dev.yml
 config/private.yml
