@@ -1,6 +1,9 @@
 # version, managed by CI
 src/version/VERSION
 
+# fly binaries, built by CI
+src/fly/*
+
 config/dev.yml
 config/private.yml
 releases/*.tgz
