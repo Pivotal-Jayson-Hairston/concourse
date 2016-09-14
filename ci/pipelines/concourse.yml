@@ -154,7 +154,6 @@ jobs:
   plan:
   - get: concourse
     trigger: true
-    passed: [rc]
   - get: version
     trigger: true
     passed: [rc]
@@ -197,6 +196,9 @@ jobs:
     passed: [build-fly]
     params: {bump: final}
     trigger: true
+  - get: fly-binaries
+    trigger: true
+    passed: [build-fly]
   - task: create-bosh-rc
     file: concourse/ci/create-bosh-rc.yml
   - put: bosh-rc
@@ -226,10 +228,13 @@ jobs:
     - get: houdini
       trigger: true
     - get: garden-runc-src
+    - get: fly-binaries
+      trigger: true
+      passed: [build-fly]
   - task: checkout-release-tag
     file: concourse/ci/checkout-garden-runc.yml
-  - task: build-cli-artifacts
-    file: bin/ci/build-cli-artifacts.yml
+  - task: untar-cli-artifacts
+    file: bin/ci/untar-cli-artifacts.yml
   - aggregate:
     - task: build-linux
       file: bin/ci/build-linux.yml
@@ -734,7 +739,7 @@ resources:
 - name: version
   type: semver
   source:
-    bucket: concourse-releases
+    bucket: concourse-releases-test
     key: current-version
     access_key_id: {{pipeline-bucket-access-key}}
     secret_access_key: {{pipeline-bucket-secret-key}}
@@ -822,6 +827,7 @@ resources:
     regexp: fly-(.*).tgz
     access_key_id: {{pipeline-bucket-access-key}}
     secret_access_key: {{pipeline-bucket-secret-key}}
+    region_name: us-west-1
 
 - name: tracker
   type: tracker

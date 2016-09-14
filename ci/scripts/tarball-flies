@@ -5,11 +5,4 @@ set -e -x
 
 VERSION="$(cat version/version)"
 
-mkdir to-tar
-mv ./darwin/fly_* to-tar/
-mv ./linux/fly_* to-tar/
-mv ./windows/fly_* to-tar/
-
-cd to-tar
-
-tar -czf ../flies/fly-${VERSION}.tgz .
+tar -czf fly-binaries/fly-${VERSION}.tgz ./darwin ./linux ./windows

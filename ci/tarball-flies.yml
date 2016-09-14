@@ -8,13 +8,12 @@ image_resource:
 
 inputs:
   - name: version
-  - name: concourse
   - name: linux
   - name: darwin
   - name: windows
 
 outputs:
-  - name: flies
+  - name: fly-binaries
 
 params:
   platform: linux
