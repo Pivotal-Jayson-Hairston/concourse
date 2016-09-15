@@ -8,10 +8,11 @@ VERSION="$(cat version/version)"
 FINAL_VERSION="$(cat final-version/version)"
 FLY_BINARIES=fly-binaries/fly-$VERSION.tgz
 
+mv $FLY_BINARIES concourse/src/fly_binaries/
+
 pushd concourse/
   echo "$FINAL_VERSION" > src/version/VERSION
 
-  mv $FLY_BINARIES src/fly_binaries/
   # work-around Go BOSH CLI trying to rename blobs downloaded into ~/.root/tmp
   # into release dir, which is invalid cross-device link
   export HOME=$PWD
