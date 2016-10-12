@@ -24,6 +24,13 @@ set -e
   end
   atc_url ||= "#{p("atc.url")}"
 
+  teamAuthorizedKeys = Hash.new
+  p("team_authorized_keys").each do |a|
+    teamName = a["team_name"]
+    if teamName != nil && teamName != ""
+      teamAuthorizedKeys[teamName].push(a["ssh_key"])
+    end
+  end
 %>
 
 RUN_DIR=/var/vcap/sys/run/tsa
@@ -73,6 +80,15 @@ EOF
       --host-key /var/vcap/packages/generated_tsa_host_key/id_rsa \
       <% end %> \
       --authorized-keys /var/vcap/jobs/tsa/config/authorized_keys \
+      <% teamAuthorizedKeys.each do |team, keys| %> \
+        TEAM=<%= team %>
+        {
+          cat <<EOF
+<%= keys.json("\n") %>
+EOF
+        } > /var/vcap/jobs/tsa/config/${TEAM}_authorized_keys
+        --team-authorized-keys ${TEAM}=/var/vcap/jobs/tsa/config/${TEAM}_authorized_keys
+      <% end %> \
       --session-signing-key $SIGNING_KEY \
       --heartbeat-interval <%= p("heartbeat_interval") %> \
       --yeller-api-key <%= esc(p("yeller.api_key")) %> \
